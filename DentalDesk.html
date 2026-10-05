@@ -1,0 +1,1014 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DentalDesk — Doctor Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#050814; --bg2:#0a1024; --glass:rgba(255,255,255,.055); --glass2:rgba(255,255,255,.09); --line:rgba(255,255,255,.12);
+  --aqua:#3df5e1; --violet:#8a6bff; --pink:#ff5fa8; --text:#eaf1ff; --mute:#8b97b8; --green:#4ff0a0; --red:#ff6b7a;
+  --grad:linear-gradient(120deg,var(--aqua),var(--violet));
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;overflow-x:hidden;min-height:100vh}
+.disp{font-family:Unbounded,Inter,sans-serif;font-weight:900;text-transform:uppercase;letter-spacing:-.03em;line-height:.95}
+button{font-family:inherit;cursor:pointer;border:0;color:inherit;background:none}
+a{color:var(--aqua)}
+input,textarea,select{font-family:inherit;color:var(--text);background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;font-size:14px;outline:none;transition:.2s}
+input:focus,textarea:focus,select:focus{border-color:var(--aqua);box-shadow:0 0 0 4px rgba(61,245,225,.14)}
+select option{background:#0a1024}
+textarea{resize:vertical;min-height:72px}
+label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:600;display:block;margin-bottom:6px}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:8px}
+
+#fx{position:fixed;inset:0;z-index:0;pointer-events:none}
+.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;background:
+  radial-gradient(900px 600px at 80% 5%,rgba(138,107,255,.28),transparent 60%),
+  radial-gradient(800px 600px at 5% 40%,rgba(61,245,225,.16),transparent 60%),
+  radial-gradient(700px 500px at 60% 100%,rgba(255,95,168,.12),transparent 60%)}
+.gridbg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(circle at 50% 30%,#000,transparent 75%)}
+#cursor{position:fixed;width:360px;height:360px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(61,245,225,.13),transparent 65%);transform:translate(-50%,-50%);left:-400px;top:-400px}
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--grad);z-index:90;width:0}
+
+#impactOverlay{position:fixed;inset:0;z-index:999;background:white;pointer-events:none;opacity:0}
+.impact-flash{animation:impactFlashSeq .5s ease-out forwards}
+@keyframes impactFlashSeq{
+  0%{opacity:1;background:#fff}
+  15%{opacity:.9;background:#000}
+  30%{opacity:1;background:var(--aqua)}
+  50%{opacity:.8;background:#000}
+  75%{opacity:.9;background:#fff}
+  100%{opacity:0}
+}
+
+#gateWrap{position:fixed;inset:0;z-index:400;background:#030612;display:flex;align-items:center;justify-content:center;padding:20px;overflow:hidden}
+.gate-box{position:relative;z-index:2;width:min(440px,94vw);background:rgba(12,18,38,.86);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.14);border-radius:28px;padding:34px 28px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 50px -15px rgba(61,245,225,.3)}
+.gate-box.shake{animation:boxQuake .65s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes boxQuake{
+  10%,90%{transform:translate3d(-4px,-2px,0) rotate(-1deg)}
+  20%,80%{transform:translate3d(6px,3px,0) rotate(1.5deg)}
+  30%,50%,70%{transform:translate3d(-8px,-5px,0) rotate(-2deg)}
+  40%,60%{transform:translate3d(8px,5px,0) rotate(2deg)}
+}
+
+.tooth-crush-zone{position:relative;width:150px;height:160px;margin:0 auto 16px;cursor:pointer}
+.tooth-piece{position:absolute;inset:0;filter:drop-shadow(0 0 16px rgba(61,245,225,.35));transition:transform .4s cubic-bezier(.2,1,.3,1)}
+.tooth-crush-zone:hover .p-left{transform:translate(-6px,-4px) rotate(-5deg)}
+.tooth-crush-zone:hover .p-right{transform:translate(6px,-4px) rotate(5deg)}
+
+.crunch-active .p-left{animation:toothShatterL .9s cubic-bezier(.12,1,.15,1) forwards}
+.crunch-active .p-right{animation:toothShatterR .9s cubic-bezier(.12,1,.15,1) forwards}
+.crunch-active .shard{display:block;animation:shardFly .9s ease-out forwards}
+
+@keyframes toothShatterL{
+  0%{transform:scale(1)}
+  20%{transform:scale(1.25) translate(-10px,-8px) rotate(-12deg);filter:drop-shadow(0 0 35px var(--aqua))}
+  100%{transform:translate(-380px,-280px) rotate(-140deg) scale(.1);opacity:0}
+}
+@keyframes toothShatterR{
+  0%{transform:scale(1)}
+  20%{transform:scale(1.25) translate(10px,-8px) rotate(12deg);filter:drop-shadow(0 0 35px var(--pink))}
+  100%{transform:translate(380px,-280px) rotate(140deg) scale(.1);opacity:0}
+}
+
+.shard{position:absolute;width:12px;height:12px;background:var(--aqua);border-radius:2px;display:none;pointer-events:none}
+.s1{top:40%;left:45%;animation-delay:0s}
+.s2{top:50%;left:50%;background:#fff;animation-delay:.04s}
+.s3{top:60%;left:48%;background:var(--violet);animation-delay:.08s}
+.s4{top:30%;left:52%;background:var(--pink);animation-delay:.02s}
+@keyframes shardFly{
+  0%{transform:scale(1) translate(0,0);opacity:1}
+  100%{transform:scale(0) translate(var(--tx, 140px), var(--ty, -180px)) rotate(360deg);opacity:0}
+}
+
+.shockwave{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);width:100px;height:100px;border-radius:50%;border:4px solid var(--aqua);box-shadow:0 0 40px var(--aqua);opacity:0;pointer-events:none}
+.wave-go{animation:shockwaveExpand .75s cubic-bezier(.05,.9,.1,1) forwards}
+@keyframes shockwaveExpand{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:1;border-color:#fff}
+  70%{border-color:var(--aqua);opacity:.8}
+  100%{transform:translate(-50%,-50%) scale(14);opacity:0}
+}
+
+nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);width:min(1180px,calc(100% - 28px));z-index:70;display:flex;align-items:center;justify-content:space-between;padding:10px 14px 10px 18px;background:rgba(10,16,36,.6);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:999px}
+.logo{display:flex;align-items:center;gap:10px;font-family:Unbounded;font-weight:800;font-size:14px;letter-spacing:-.02em;text-transform:uppercase}
+.logo svg{width:24px;flex:none}
+.pill{padding:9px 15px;border-radius:999px;font-size:12px;font-weight:600;background:var(--glass);border:1px solid var(--line);transition:.2s;white-space:nowrap}
+.pill:hover{background:var(--aqua);color:#031018;border-color:var(--aqua)}
+.pill.hot{background:var(--grad);color:#031018;border:0;font-weight:700}
+
+.wrap{position:relative;z-index:2;max-width:1220px;margin:0 auto;padding:0 20px}
+section{position:relative}
+
+.hero{min-height:100vh;display:grid;grid-template-columns:1.05fr 1fr;align-items:center;gap:20px;padding:110px 0 50px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--aqua);font-weight:600;margin-bottom:22px}
+.eyebrow::before{content:"";width:36px;height:2px;background:var(--aqua)}
+.hero h1{font-size:clamp(44px,7.4vw,108px)}
+.hero h1 .o{color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.75)}
+.hero h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{color:var(--mute);margin:24px 0 30px;max-width:470px;line-height:1.65;font-size:15px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{background:var(--grad);color:#041018;font-weight:700;padding:15px 26px;border-radius:999px;font-size:14px;transition:.25s;box-shadow:0 10px 40px -10px rgba(61,245,225,.6)}
+.btn:hover{transform:translateY(-3px);box-shadow:0 18px 50px -10px rgba(138,107,255,.8)}
+.btn.ghost{background:var(--glass);color:var(--text);border:1px solid var(--line);box-shadow:none}
+.btn.ghost:hover{border-color:var(--aqua);color:var(--aqua)}
+.btn.danger{background:transparent;color:var(--red);border:1px solid var(--red);box-shadow:none}
+.btn.sm{padding:9px 15px;font-size:12px}
+
+.stage{position:relative;height:min(78vh,640px);display:grid;place-items:center;perspective:1000px}
+.rings{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.rings i{position:absolute;border-radius:50%;border:1px dashed rgba(255,255,255,.18)}
+.rings i:nth-child(1){width:92%;aspect-ratio:1;animation:spin 40s linear infinite}
+.rings i:nth-child(2){width:68%;aspect-ratio:1;border-style:solid;border-color:rgba(61,245,225,.28);animation:spin 26s linear infinite reverse}
+.rings i:nth-child(3){width:46%;aspect-ratio:1;border-color:rgba(138,107,255,.4);animation:spin 18s linear infinite}
+.rings i::after{content:"";position:absolute;top:-5px;left:50%;width:10px;height:10px;border-radius:50%;background:var(--aqua);box-shadow:0 0 18px var(--aqua)}
+.rings i:nth-child(2)::after{background:var(--violet);box-shadow:0 0 18px var(--violet)}
+.rings i:nth-child(3)::after{background:var(--pink);box-shadow:0 0 18px var(--pink)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.glow{position:absolute;width:55%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(61,245,225,.45),rgba(138,107,255,.25) 50%,transparent 70%);filter:blur(40px);animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.15);opacity:.8}}
+.tooth{position:relative;width:min(52%,300px);filter:drop-shadow(0 30px 50px rgba(61,245,225,.35));transition:transform .15s ease-out;animation:float 6s ease-in-out infinite}
+@keyframes float{50%{margin-top:-18px}}
+
+.fcard{position:absolute;background:rgba(14,20,44,.72);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px;padding:14px 16px;min-width:170px}
+.fcard .k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.fcard .v{font-family:Unbounded;font-weight:800;font-size:22px;margin-top:4px}
+.fcard .s{font-size:12px;color:var(--mute);margin-top:2px}
+.fc1{top:6%;left:-2%}.fc2{bottom:10%;left:2%}.fc3{top:30%;right:-3%}
+.fc1 .v{color:var(--aqua);font-variant-numeric:tabular-nums;font-size:26px}
+.fc3 .v{color:var(--pink)}
+.live{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);margin-right:6px}
+
+.marq{overflow:hidden;border-block:1px solid var(--line);background:rgba(255,255,255,.025);padding:18px 0;position:relative;z-index:2}
+.marq div{display:inline-block;white-space:nowrap;font-family:Unbounded;font-weight:900;font-size:clamp(28px,5vw,60px);text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.35);animation:mq 40s linear infinite}
+.marq b{color:var(--aqua);-webkit-text-stroke:0;margin:0 22px}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+.sec{padding:100px 0 20px}
+.sec h2{font-size:clamp(34px,5.4vw,72px);margin-bottom:10px}
+.sec h2 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sec .sub{color:var(--mute);margin-bottom:34px;max-width:520px;line-height:1.6}
+
+.rv{opacity:0;transform:translateY(40px) scale(.98);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+
+.lineup{display:flex;gap:16px;overflow-x:auto;padding:6px 4px 22px;scroll-snap-type:x proximity}
+.lc{flex:none;width:290px;scroll-snap-align:start;background:var(--glass);border:1px solid var(--line);border-radius:24px;padding:22px;position:relative;overflow:hidden;transition:.3s;cursor:pointer}
+.lc:hover{transform:translateY(-8px);border-color:var(--aqua)}
+.lc .tm{font-family:Unbounded;font-weight:800;font-size:34px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lc .nm{font-weight:600;font-size:18px;margin-top:14px}
+.lc .ca{color:var(--mute);font-size:13px;margin-top:6px;line-height:1.45;height:38px;overflow:hidden}
+.lc .ph{margin-top:14px;font-size:13px;color:var(--aqua)}
+.tag{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(61,245,225,.14);color:var(--aqua)}
+.tag.done{background:rgba(79,240,160,.15);color:var(--green)}
+.tag.cancelled{background:rgba(255,107,122,.15);color:var(--red)}
+
+.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:20px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:28px;padding:26px;backdrop-filter:blur(8px)}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.month{font-size:clamp(22px,3vw,34px)}
+.dow,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.dow div{text-align:center;font-size:10px;letter-spacing:.18em;color:var(--mute);font-weight:600;padding:6px 0}
+.day{aspect-ratio:1/.9;background:rgba(255,255,255,.04);border:1px solid transparent;border-radius:14px;padding:8px 9px;text-align:left;transition:.2s;display:flex;flex-direction:column;justify-content:space-between}
+.day:hover{border-color:var(--aqua);background:rgba(61,245,225,.08)}
+.day.out{opacity:.22}
+.day.today{border-color:var(--violet)}
+.day.today .d{color:var(--violet)}
+.day.sel{background:var(--grad);color:#031018}
+.day.sel .d{color:#031018}
+.day .dots{display:flex;gap:3px}
+.day .dots i{width:6px;height:6px;border-radius:50%;background:var(--pink)}
+.day.sel .dots i{background:#031018}
+
+.list{display:flex;flex-direction:column;gap:10px;max-height:520px;overflow:auto;margin-top:14px}
+.appt{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:16px;padding:13px 15px;cursor:pointer;transition:.2s}
+.appt:hover{transform:translateX(5px);border-color:var(--aqua)}
+.appt .tm{font-family:Unbounded;font-weight:800;font-size:15px;color:var(--aqua)}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat{background:var(--glass);border:1px solid var(--line);border-radius:26px;padding:26px 22px;position:relative;overflow:hidden}
+.stat .n{font-size:clamp(44px,5.4vw,72px);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat .t{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-top:10px}
+
+.overlay{position:fixed;inset:0;background:rgba(3,5,14,.82);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:220;padding:16px}
+.overlay.open{display:flex}
+.modal{background:linear-gradient(160deg,#101834,#0a1024);border:1px solid var(--line);border-radius:28px;width:100%;max-width:660px;max-height:92vh;overflow:auto;padding:30px;position:relative}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field{margin-bottom:12px}
+.actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.x{position:absolute;right:18px;top:18px;width:38px;height:38px;border-radius:50%;background:var(--glass2);font-size:16px}
+.kv{background:rgba(255,255,255,.05);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.kv .k{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);font-weight:600;margin-bottom:6px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.mp{background:rgba(138,107,255,.16);color:#c9bcff;border:1px solid rgba(138,107,255,.4);padding:7px 13px;border-radius:999px;font-size:13px}
+
+.phone-wrapper{position:relative}
+.phone-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--aqua);font-size:14px}
+.phone-wrapper input{padding-left:50px;letter-spacing:1px}
+
+#toasts{position:fixed;right:18px;bottom:18px;z-index:350;display:flex;flex-direction:column;gap:12px;max-width:390px;width:calc(100% - 36px)}
+.toast{background:rgba(14,20,44,.95);backdrop-filter:blur(16px);border:1px solid var(--aqua);border-radius:20px;padding:16px 18px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.toast .tt{font-family:Unbounded;font-weight:800;font-size:14px;text-transform:uppercase;color:var(--aqua)}
+.toast .tb{margin:8px 0 12px;font-size:14px;line-height:1.5}
+.toast .tbtns{display:flex;gap:8px;margin-top:10px}
+
+@media(max-width:920px){
+  .hero{grid-template-columns:1fr;padding-top:100px}
+  .stage{height:420px;order:-1}
+  .fc1{left:0}.fc3{right:0}
+  .grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .row{grid-template-columns:1fr}
+  .pill.hide{display:none}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset=".55" stop-color="#bdfcf5"/><stop offset="1" stop-color="#8fb4ff"/></linearGradient>
+    <linearGradient id="tg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3df5e1"/><stop offset="1" stop-color="#8a6bff"/></linearGradient>
+    <symbol id="toothShape" viewBox="0 0 140 160"><path d="M70 26C58 8 16 8 16 50c0 26 14 34 18 66 3 24 10 38 18 38 8 0 8-26 18-26s10 26 18 26c8 0 15-14 18-38 4-32 18-40 18-66C124 8 82 8 70 26Z"/></symbol>
+    <clipPath id="splitL"><polygon points="0,0 70,0 62,45 78,80 60,118 70,160 0,160"/></clipPath>
+    <clipPath id="splitR"><polygon points="70,0 140,0 140,160 70,160 60,118 78,80 62,45"/></clipPath>
+  </defs>
+</svg>
+
+<div id="impactOverlay"></div>
+<canvas id="fx"></canvas><div class="aurora"></div><div class="gridbg"></div><div id="cursor"></div><div id="progress"></div>
+
+<!-- Fracture Portal Entrance -->
+<div id="gateWrap">
+  <div class="shockwave" id="shockwave"></div>
+  <div class="gate-box" id="gateCard">
+    <div class="tooth-crush-zone" id="toothCrush" title="Click or Press Enter to Crunch and Enter">
+      <span class="shard s1" style="--tx:-180px;--ty:-130px"></span>
+      <span class="shard s2" style="--tx:220px;--ty:-160px"></span>
+      <span class="shard s3" style="--tx:-140px;--ty:160px"></span>
+      <span class="shard s4" style="--tx:190px;--ty:140px"></span>
+
+      <svg class="tooth-piece p-left" viewBox="0 0 140 160">
+        <path clip-path="url(#splitL)" fill="url(#tg)" d="M70 26C58 8 16 8 16 50c0 26 14 34 18 66 3 24 10 38 18 38 8 0 8-26 18-26s10 26 18 26c8 0 15-14 18-38 4-32 18-40 18-66C124 8 82 8 70 26Z"/>
+      </svg>
+      <svg class="tooth-piece p-right" viewBox="0 0 140 160">
+        <path clip-path="url(#splitR)" fill="url(#tg2)" d="M70 26C58 8 16 8 16 50c0 26 14 34 18 66 3 24 10 38 18 38 8 0 8-26 18-26s10 26 18 26c8 0 15-14 18-38 4-32 18-40 18-66C124 8 82 8 70 26Z"/>
+      </svg>
+    </div>
+
+    <div style="font-size:11px;letter-spacing:.3em;color:var(--aqua);text-transform:uppercase;font-weight:700">Protected Clinical Access</div>
+    <h2 class="disp" style="font-size:28px;margin:8px 0 16px">Enter Practice</h2>
+
+    <div style="text-align:left;margin-bottom:12px">
+      <label>Doctor's Name</label>
+      <input id="enterDocName" placeholder="e.g. Smith or Sharma">
+    </div>
+    <div style="text-align:left;margin-bottom:14px">
+      <label>Passcode / PIN (Optional)</label>
+      <input id="enterPin" type="password" placeholder="••••" maxlength="8">
+    </div>
+    <div id="gateError" style="color:var(--red);font-size:13px;height:18px;margin-bottom:8px"></div>
+    <button class="btn" style="width:100%" id="enterBtn">CRUNCH & ENTER</button>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app" style="display:none">
+  <nav>
+    <div class="logo"><svg viewBox="0 0 140 160"><use href="#toothShape" fill="url(#tg2)"/></svg><span id="logoName">DentalDesk</span></div>
+    <div style="display:flex;gap:6px">
+      <button class="pill hide" id="btnSettings">⚙ Settings</button>
+      <button class="pill hide" id="btnLock">🔒 Lock</button>
+      <button class="pill hot" id="navAdd">+ New patient</button>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <section class="hero" id="hero">
+      <div>
+        <div class="eyebrow" id="greet">Good day</div>
+        <h1 class="disp"><span class="o">Every</span><br><span class="g">Smile</span><br>On <span class="o">Time</span></h1>
+        <p class="lead" id="dateLine"></p>
+        <div class="cta">
+          <button class="btn" id="heroAdd">Book an appointment</button>
+          <button class="btn ghost" id="heroCal">Open calendar ↓</button>
+        </div>
+      </div>
+      <div class="stage" id="stage">
+        <div class="glow"></div>
+        <div class="rings"><i></i><i></i><i></i></div>
+        <svg class="tooth" id="toothSvg" viewBox="0 0 140 160" data-depth="14">
+          <use href="#toothShape" fill="url(#tg)"/>
+          <path d="M34 36c4-12 20-16 28-8" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".9"/>
+          <circle cx="30" cy="52" r="3" fill="#fff" opacity=".8"/>
+          <path d="M44 100c4 18 8 36 12 44" stroke="#6fa8ff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".35"/>
+        </svg>
+        <div class="fcard fc1" data-depth="26"><div class="k"><span class="live"></span>Next patient in</div><div class="v" id="nextTimer">--:--:--</div><div class="s" id="nextWho">No upcoming</div></div>
+        <div class="fcard fc2" data-depth="38"><div class="k">Today</div><div class="v" id="heroToday">0 patients</div><div class="s" id="heroTodaySub">Clear schedule</div></div>
+        <div class="fcard fc3" data-depth="20"><div class="k">Reminder</div><div class="v" id="heroLead">15 min</div><div class="s">Encrypted & Local</div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="marq"><div id="mq"></div></div>
+
+  <div class="wrap">
+    <section class="sec" id="lineupSec">
+      <div class="rv"><h2 class="disp">Today's <span class="g">lineup</span></h2>
+      <p class="sub">Everyone you're seeing today, in order. Tap a card to open the patient file.</p></div>
+      <div class="lineup rv" id="lineup"></div>
+    </section>
+
+    <section class="sec" id="calSec">
+      <div class="rv"><h2 class="disp">Command <span class="g">center</span></h2>
+      <p class="sub">Pick a date, see who's coming, add details. Double-click any date to book instantly.</p></div>
+      <div class="grid rv">
+        <div class="card">
+          <div class="calhead">
+            <div class="month disp" id="monthLabel"></div>
+            <div style="display:flex;gap:6px">
+              <button class="pill" id="prevM">‹</button>
+              <button class="pill" id="todayM">Today</button>
+              <button class="pill" id="nextM">›</button>
+            </div>
+          </div>
+          <div class="dow"><div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div><div>SUN</div></div>
+          <div class="days" id="days"></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 class="disp" id="dayTitle">Today</h3>
+            <button class="btn sm" id="addBtn">+ New</button>
+          </div>
+          <input style="margin-top:16px" id="search" placeholder="Search patient name or mobile…">
+          <div class="list" id="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <div class="rv"><h2 class="disp">The <span class="g">numbers</span></h2><p class="sub">Live pulse of the practice records.</p></div>
+      <div class="stats rv">
+        <div class="stat"><div class="n disp" data-c id="sToday">0</div><div class="t">Patients today</div></div>
+        <div class="stat"><div class="n disp" data-c id="sWeek">0</div><div class="t">Next 7 days</div></div>
+        <div class="stat"><div class="n disp" data-c id="sDone">0</div><div class="t">Completed this month</div></div>
+        <div class="stat"><div class="n disp" data-c id="sAll">0</div><div class="t">Total on record</div></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Patient Record Form -->
+<div class="overlay" id="formOv"><div class="modal">
+  <button class="x" data-close>✕</button>
+  <h3 class="disp" id="formTitle">Patient <em>File</em></h3>
+  <form id="form">
+    <div class="row">
+      <div>
+        <label>Patient name *</label>
+        <input id="fName" required placeholder="Patient full name">
+      </div>
+      <div>
+        <label>Mobile (+91 Indian 10-Digit) *</label>
+        <div class="phone-wrapper">
+          <span class="phone-prefix">+91</span>
+          <input id="fPhone" type="tel" maxlength="10" placeholder="9876543210" required>
+        </div>
+      </div>
+    </div>
+    <div class="field"><label>Email</label><input id="fEmail" type="email" placeholder="patient@gmail.com"></div>
+    <div class="row"><div><label>Date *</label><input id="fDate" type="date" required></div><div><label>Time *</label><input id="fTime" type="time" required></div></div>
+    <div class="field"><label>Problem / cause of visit</label><textarea id="fCause" placeholder="Toothache lower right molar, sensitivity..."></textarea></div>
+    <div class="field"><label>Medicines (one per line)</label><textarea id="fMeds" placeholder="Amoxicillin 500mg — 3 times a day"></textarea></div>
+    <div class="field"><label>Notes / treatment done</label><textarea id="fNotes" placeholder="RCT completed, next review in 10 days..."></textarea></div>
+    <div class="field"><label>Status</label><select id="fStatus"><option value="scheduled">Scheduled</option><option value="done">Completed</option><option value="cancelled">Cancelled</option></select></div>
+    <div class="actions">
+      <button class="btn" type="submit">Save patient</button>
+      <button class="btn ghost" type="button" data-close>Cancel</button>
+      <button class="btn danger" type="button" id="delBtn" style="display:none;margin-left:auto">Delete</button>
+    </div>
+  </form>
+</div></div>
+
+<div class="overlay" id="fileOv"><div class="modal" id="fileBody"></div></div>
+
+<div class="overlay" id="setOv"><div class="modal">
+  <button class="x" data-close>✕</button>
+  <h3 class="disp">Practice <em>Settings</em></h3>
+  <div class="field"><label>Doctor / Clinic Name</label><input id="sName" placeholder="Dr. Patel Dental Clinic"></div>
+  <div class="row"><div><label>Remind before visit (mins)</label><input id="sLead" type="number" min="1" max="240" value="15"></div><div><label>Change Passcode (blank to keep)</label><input id="sPin" type="password" maxlength="8"></div></div>
+  <div class="actions">
+    <button class="btn" id="sSave">Save</button>
+    <button class="btn ghost" id="sExport">⬇ Backup data</button>
+  </div>
+</div></div>
+
+<div id="toasts"></div>
+
+<script>
+(function(){
+var KEY = 'dentalDeskDoctorState_v4';
+var $ = function(s){ return document.querySelector(s); };
+var esc = function(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+};
+var pad = function(n){ return String(n).padStart(2, '0'); };
+var ymd = function(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var t12 = function(t){
+  var parts = t.split(':');
+  var h = Number(parts[0]);
+  var m = Number(parts[1]);
+  return (h % 12 || 12) + ':' + pad(m) + ' ' + (h < 12 ? 'AM' : 'PM');
+};
+var hash = function(s){
+  var h = 5381;
+  for(var i = 0; i < s.length; i++){
+    h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  }
+  return String(h);
+};
+
+var state = { name: '', pin: '', lead: 15, appts: [] };
+
+try{
+  var local = JSON.parse(localStorage.getItem(KEY));
+  if(local){ Object.assign(state, local); }
+}catch(e){}
+
+var save = function(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+};
+
+/* Request Notification permission on first user entry */
+function reqNotifPermission(){
+  if('Notification' in window && Notification.permission === 'default'){
+    Notification.requestPermission();
+  }
+}
+
+/* Synthesize reminder chime */
+function playChime(){
+  try{
+    var AudioCtx = window.AudioContext || window.webkitAudioContext;
+    var ctx = new AudioCtx();
+    var tones = [587.33, 880, 1174.66];
+    tones.forEach(function(freq, idx){
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.12);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + idx * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.12 + 0.5);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + idx * 0.12);
+      osc.stop(ctx.currentTime + idx * 0.12 + 0.55);
+    });
+  }catch(e){}
+}
+
+/* Background Particle FX */
+var cv = $('#fx'), cx = cv.getContext('2d');
+var P = [];
+function sizeCv(){
+  cv.width = window.innerWidth;
+  cv.height = window.innerHeight;
+  P = [];
+  var count = Math.min(60, Math.floor(window.innerWidth / 20));
+  for(var i = 0; i < count; i++){
+    P.push({
+      x: Math.random() * cv.width,
+      y: Math.random() * cv.height,
+      r: Math.random() * 1.8 + 0.4,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: -Math.random() * 0.35 - 0.05,
+      c: Math.random() < 0.5 ? '61,245,225' : (Math.random() < 0.5 ? '138,107,255' : '255,255,255')
+    });
+  }
+}
+sizeCv();
+window.addEventListener('resize', sizeCv);
+
+(function loop(){
+  cx.clearRect(0, 0, cv.width, cv.height);
+  for(var i = 0; i < P.length; i++){
+    var p = P[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    if(p.y < -5){ p.y = cv.height + 5; p.x = Math.random() * cv.width; }
+    if(p.x < 0){ p.x = cv.width; }
+    if(p.x > cv.width){ p.x = 0; }
+    cx.beginPath();
+    cx.arc(p.x, p.y, p.r, 0, 7);
+    cx.fillStyle = 'rgba(' + p.c + ',.5)';
+    cx.fill();
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* Mouse Parallax */
+window.addEventListener('mousemove', function(e){
+  var c = $('#cursor');
+  c.style.left = e.clientX + 'px';
+  c.style.top = e.clientY + 'px';
+  var st = $('#stage');
+  if(!st) return;
+  var r = st.getBoundingClientRect();
+  var nx = (e.clientX - (r.left + r.width / 2)) / window.innerWidth;
+  var ny = (e.clientY - (r.top + r.height / 2)) / window.innerHeight;
+  var els = st.querySelectorAll('[data-depth]');
+  for(var i = 0; i < els.length; i++){
+    var el = els[i];
+    var d = Number(el.dataset.depth);
+    var t = 'translate(' + (nx * d * -2) + 'px,' + (ny * d * -2) + 'px)';
+    if(el.id === 'toothSvg'){
+      t += ' rotateY(' + (nx * 26) + 'deg) rotateX(' + (-ny * 26) + 'deg)';
+    }
+    el.style.transform = t;
+  }
+});
+
+window.addEventListener('scroll', function(){
+  var h = document.documentElement;
+  $('#progress').style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + '%';
+}, {passive:true});
+
+/* Audio crunch synthesis */
+function playAnimeCrunchSound(){
+  try{
+    var AudioCtx = window.AudioContext || window.webkitAudioContext;
+    var ctx = new AudioCtx();
+    var len = Math.floor(ctx.sampleRate * 0.45);
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    for(var i = 0; i < len; i++){
+      d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.07));
+    }
+    var noise = ctx.createBufferSource();
+    noise.buffer = buf;
+
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(2600, ctx.currentTime);
+    filter.Q.setValueAtTime(4, ctx.currentTime);
+
+    var sub = ctx.createOscillator();
+    var subGain = ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(160, ctx.currentTime);
+    sub.frequency.exponentialRampToValueAtTime(32, ctx.currentTime + 0.35);
+    subGain.gain.setValueAtTime(0.7, ctx.currentTime);
+    subGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+
+    var osc = ctx.createOscillator();
+    var oscGain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(220, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.3);
+    oscGain.gain.setValueAtTime(0.2, ctx.currentTime);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+    noise.connect(filter);
+    filter.connect(ctx.destination);
+    sub.connect(subGain);
+    subGain.connect(ctx.destination);
+    osc.connect(oscGain);
+    oscGain.connect(ctx.destination);
+
+    noise.start();
+    sub.start();
+    osc.start();
+    sub.stop(ctx.currentTime + 0.45);
+    osc.stop(ctx.currentTime + 0.45);
+  }catch(e){}
+}
+
+/* Enter button action */
+function triggerCrunch(){
+  var nameVal = $('#enterDocName').value.trim();
+  var pinVal = $('#enterPin').value.trim();
+
+  if(state.pin && hash(pinVal) !== state.pin){
+    $('#gateError').textContent = 'Incorrect PIN';
+    return;
+  }
+  if(nameVal){ state.name = nameVal; }
+  if(pinVal && !state.pin){ state.pin = hash(pinVal); }
+  save();
+
+  reqNotifPermission();
+  playAnimeCrunchSound();
+  $('#impactOverlay').classList.add('impact-flash');
+  $('#gateCard').classList.add('shake');
+  $('#toothCrush').classList.add('crunch-active');
+  $('#shockwave').classList.add('wave-go');
+
+  setTimeout(function(){
+    $('#gateWrap').style.transition = 'opacity .7s cubic-bezier(.16,1,.3,1), transform .7s ease';
+    $('#gateWrap').style.opacity = '0';
+    $('#gateWrap').style.transform = 'scale(1.1)';
+    setTimeout(function(){
+      $('#gateWrap').style.display = 'none';
+      $('#app').style.display = 'block';
+      initApp();
+    }, 600);
+  }, 550);
+}
+
+$('#enterBtn').onclick = triggerCrunch;
+$('#toothCrush').onclick = triggerCrunch;
+$('#enterPin').onkeydown = function(e){ if(e.key === 'Enter') triggerCrunch(); };
+$('#enterDocName').onkeydown = function(e){ if(e.key === 'Enter') triggerCrunch(); };
+
+if(state.name){ $('#enterDocName').value = state.name; }
+
+var view = new Date();
+view.setDate(1);
+var selected = ymd(new Date());
+var editingId = null;
+
+function initApp(){
+  renderHeader();
+  renderLineup();
+  renderCal();
+  renderList();
+  renderStats();
+  renderNext();
+  initScrollAnimations();
+  checkApptReminders();
+}
+
+function renderHeader(){
+  var n = new Date();
+  var doc = state.name || 'Doctor';
+  $('#greet').textContent = 'Welcome Dr. ' + doc;
+  $('#logoName').textContent = state.name ? ('Dr. ' + state.name) : 'DentalDesk';
+  $('#dateLine').textContent = n.toLocaleDateString(undefined, {weekday:'long', day:'numeric', month:'long', year:'numeric'}) + ' — clinical schedule and records.';
+  
+  var todays = state.appts.filter(function(a){ return a.date === ymd(n) && a.status !== 'cancelled'; });
+  $('#heroToday').textContent = todays.length + (todays.length === 1 ? ' patient' : ' patients');
+  var up = todays.filter(function(a){ return a.status === 'scheduled'; });
+  $('#heroTodaySub').textContent = up.length ? (up.length + ' still to come') : (todays.length ? 'All done today' : 'Clear schedule');
+  $('#heroLead').textContent = (state.lead || 15) + ' min';
+
+  var bits = up.length ? up.map(function(a){ return t12(a.time) + ' ' + esc(a.name); }) : ['Smiles engineered', 'Every patient on time', 'Private Clinical Console'];
+  $('#mq').innerHTML = (bits.map(function(b){ return b + '<b>✦</b>'; }).join('')).repeat(Math.ceil(12 / bits.length) * 2);
+}
+
+function renderLineup(){
+  var items = state.appts.filter(function(a){ return a.date === ymd(new Date()) && a.status !== 'cancelled'; })
+                         .sort(function(a, b){ return a.time.localeCompare(b.time); });
+  if(items.length){
+    $('#lineup').innerHTML = items.map(function(a){
+      return '<div class="lc" onclick="openFile(\'' + a.id + '\')">' +
+        '<span class="tag ' + a.status + '">' + a.status + '</span>' +
+        '<div class="tm">' + t12(a.time) + '</div>' +
+        '<div class="nm">' + esc(a.name) + '</div>' +
+        '<div class="ca">' + esc(a.cause || 'Routine checkup') + '</div>' +
+        '<div class="ph">📞 +91 ' + esc(a.phone) + '</div>' +
+      '</div>';
+    }).join('');
+  } else {
+    $('#lineup').innerHTML = '<div class="lc" style="width:100%;cursor:default"><div class="nm">No patients today</div><div class="ca">Click "+ New patient" to book an appointment.</div></div>';
+  }
+}
+
+function renderCal(){
+  $('#monthLabel').textContent = MONTHS[view.getMonth()] + ' ' + view.getFullYear();
+  var first = new Date(view.getFullYear(), view.getMonth(), 1);
+  var offset = (first.getDay() + 6) % 7;
+  var start = new Date(first);
+  start.setDate(1 - offset);
+  var todayStr = ymd(new Date());
+  var html = '';
+
+  for(var i = 0; i < 42; i++){
+    var d = new Date(start);
+    d.setDate(start.getDate() + i);
+    var s = ymd(d);
+    var count = state.appts.filter(function(a){ return a.date === s && a.status !== 'cancelled'; }).length;
+    var cls = 'day ' + (d.getMonth() !== view.getMonth() ? 'out ' : '') + (s === todayStr ? 'today ' : '') + (s === selected ? 'sel ' : '');
+    html += '<button class="' + cls + '" data-d="' + s + '">' +
+      '<span class="d">' + d.getDate() + '</span>' +
+      '<span class="dots">' + ('<i></i>'.repeat(Math.min(count, 3))) + '</span>' +
+    '</button>';
+  }
+  $('#days').innerHTML = html;
+  var dayBtns = document.querySelectorAll('.day');
+  for(var j = 0; j < dayBtns.length; j++){
+    (function(b){
+      b.onclick = function(){ selected = b.dataset.d; renderCal(); renderList(); };
+      b.ondblclick = function(){ openForm(null, b.dataset.d); };
+    })(dayBtns[j]);
+  }
+}
+
+function renderList(){
+  var q = $('#search').value.trim().toLowerCase();
+  var items = q ? state.appts.filter(function(a){ return a.name.toLowerCase().indexOf(q) !== -1 || a.phone.indexOf(q) !== -1; })
+                : state.appts.filter(function(a){ return a.date === selected; });
+  $('#dayTitle').textContent = selected === ymd(new Date()) ? 'Today' : selected;
+  if(items.length){
+    $('#list').innerHTML = items.map(function(a){
+      return '<div class="appt" onclick="openFile(\'' + a.id + '\')">' +
+        '<div class="tm">' + t12(a.time) + '</div>' +
+        '<div><div style="font-weight:600">' + esc(a.name) + '</div><div style="font-size:12.5px;color:var(--mute)">' + esc(a.cause || 'No diagnosis noted') + '</div></div>' +
+        '<span class="tag ' + a.status + '">' + a.status + '</span>' +
+      '</div>';
+    }).join('');
+  } else {
+    $('#list').innerHTML = '<div style="text-align:center;padding:36px 10px;color:var(--mute)">No patients scheduled for this date.</div>';
+  }
+}
+
+function renderStats(){
+  var today = ymd(new Date());
+  $('#sToday').textContent = state.appts.filter(function(a){ return a.date === today; }).length;
+  $('#sAll').textContent = state.appts.length;
+  $('#sDone').textContent = state.appts.filter(function(a){ return a.status === 'done'; }).length;
+}
+
+function renderNext(){
+  var now = new Date();
+  var scheduled = state.appts.filter(function(a){
+    return a.status === 'scheduled' && new Date(a.date + 'T' + a.time + ':00') >= now;
+  });
+  scheduled.sort(function(a, b){
+    return new Date(a.date + 'T' + a.time + ':00') - new Date(b.date + 'T' + b.time + ':00');
+  });
+  var upcoming = scheduled[0];
+  if(upcoming){
+    $('#nextWho').textContent = upcoming.name + ' (' + t12(upcoming.time) + ')';
+    var diff = new Date(upcoming.date + 'T' + upcoming.time + ':00') - now;
+    var h = Math.floor(diff / 36e5);
+    var m = Math.floor((diff % 36e5) / 6e4);
+    var s = Math.floor((diff % 6e4) / 1e3);
+    $('#nextTimer').textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+  } else {
+    $('#nextTimer').textContent = '--:--:--';
+    $('#nextWho').textContent = 'No upcoming appointments';
+  }
+}
+setInterval(renderNext, 1000);
+
+/* Automatic Scheduled Day/Time Reminder Check */
+function checkApptReminders(){
+  var now = new Date();
+  var changed = false;
+
+  for(var i = 0; i < state.appts.length; i++){
+    var a = state.appts[i];
+    if(a.status !== 'scheduled') continue;
+    a.notified = a.notified || {};
+
+    var targetTime = new Date(a.date + 'T' + a.time + ':00');
+    var diffMins = (targetTime - now) / 60000;
+
+    // Reminder 1: When patient is due now or passed within 30 min
+    if(diffMins <= 0 && diffMins > -30 && !a.notified.dueNow){
+      a.notified.dueNow = true;
+      changed = true;
+      playChime();
+      
+      var msg = a.name + ' is due for their appointment right now (' + t12(a.time) + '). Contact: +91 ' + a.phone;
+      toastWithActions('🚨 Patient Due Now', msg, [
+        { label: 'Open File', fn: (function(id){ return function(){ openFile(id); }; })(a.id) },
+        { label: 'Mark Done', fn: (function(id){ return function(){ markDone(id); }; })(a.id) }
+      ]);
+
+      if('Notification' in window && Notification.permission === 'granted'){
+        new Notification('🚨 Patient Due Now: ' + a.name, {
+          body: msg,
+          icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%233df5e1"/></svg>'
+        });
+      }
+    }
+    // Reminder 2: Arriving today within Lead Window
+    else if(diffMins > 0 && diffMins <= (state.lead || 15) && !a.notified.leadAlert){
+      a.notified.leadAlert = true;
+      changed = true;
+      playChime();
+
+      var leadMsg = a.name + ' arrives in ' + Math.ceil(diffMins) + ' mins (' + t12(a.time) + ').';
+      toastWithActions('⏰ Upcoming Visit', leadMsg, [
+        { label: 'View Details', fn: (function(id){ return function(){ openFile(id); }; })(a.id) }
+      ]);
+    }
+  }
+
+  if(changed){ save(); }
+}
+setInterval(checkApptReminders, 10000);
+
+function initScrollAnimations(){
+  if(!('IntersectionObserver' in window)) return;
+  var observer = new IntersectionObserver(function(entries){
+    for(var i = 0; i < entries.length; i++){
+      if(entries[i].isIntersecting){
+        entries[i].target.classList.add('in');
+      }
+    }
+  }, {threshold: 0.12});
+  var rvs = document.querySelectorAll('.rv');
+  for(var j = 0; j < rvs.length; j++){
+    observer.observe(rvs[j]);
+  }
+}
+
+/* 10-Digit Phone Handling */
+var phoneInput = $('#fPhone');
+phoneInput.addEventListener('input', function(){
+  var val = this.value.replace(/\D/g, '');
+  if(val.length === 12 && val.indexOf('91') === 0){
+    val = val.substring(2);
+  }
+  if(val.length > 10){
+    val = val.substring(0, 10);
+  }
+  this.value = val;
+});
+
+function openForm(id, date){
+  editingId = id;
+  var a = id ? state.appts.find(function(x){ return x.id === id; }) : null;
+  $('#formTitle').innerHTML = a ? 'Edit <em>Patient</em>' : 'New <em>Patient</em>';
+  $('#fName').value = a ? a.name : '';
+  $('#fPhone').value = a ? a.phone : '';
+  $('#fEmail').value = a ? a.email : '';
+  $('#fDate').value = a ? a.date : (date || selected);
+  $('#fTime').value = a ? a.time : '10:00';
+  $('#fCause').value = a ? a.cause : '';
+  $('#fMeds').value = a ? a.meds : '';
+  $('#fNotes').value = a ? a.notes : '';
+  $('#fStatus').value = a ? a.status : 'scheduled';
+  $('#delBtn').style.display = a ? 'inline-block' : 'none';
+  $('#formOv').classList.add('open');
+}
+
+$('#form').onsubmit = function(e){
+  e.preventDefault();
+  var phone = $('#fPhone').value.trim();
+  
+  if(!/^[6-9]\d{9}$/.test(phone)){
+    toast('Invalid Number', 'Please enter a valid 10-digit Indian mobile number (starts with 6, 7, 8, or 9).');
+    $('#fPhone').focus();
+    return;
+  }
+
+  var data = {
+    name: $('#fName').value.trim(),
+    phone: phone,
+    email: $('#fEmail').value.trim(),
+    date: $('#fDate').value,
+    time: $('#fTime').value,
+    cause: $('#fCause').value.trim(),
+    meds: $('#fMeds').value.trim(),
+    notes: $('#fNotes').value.trim(),
+    status: $('#fStatus').value
+  };
+
+  if(editingId){
+    var target = state.appts.find(function(x){ return x.id === editingId; });
+    var moved = target.date !== data.date || target.time !== data.time;
+    Object.assign(target, data);
+    if(moved){ target.notified = {}; }
+  } else {
+    state.appts.push(Object.assign({ id:'p_' + Date.now(), notified: {} }, data));
+  }
+
+  save();
+  $('#formOv').classList.remove('open');
+  renderHeader();
+  renderLineup();
+  renderCal();
+  renderList();
+  renderStats();
+  toast('Record Saved', data.name + ' scheduled for ' + data.date + ' at ' + t12(data.time));
+};
+
+$('#delBtn').onclick = function(){
+  if(!confirm('Permanently delete this record?')) return;
+  state.appts = state.appts.filter(function(x){ return x.id !== editingId; });
+  save();
+  $('#formOv').classList.remove('open');
+  initApp();
+};
+
+window.openFile = function(id){
+  var a = state.appts.find(function(x){ return x.id === id; });
+  if(!a) return;
+  var meds = (a.meds || '').split('\n').filter(Boolean);
+  var medsHtml = meds.length ? ('<div class="pills">' + meds.map(function(m){ return '<span class="mp">💊 ' + esc(m) + '</span>'; }).join('') + '</div>') : '<div class="v">—</div>';
+  
+  $('#fileBody').innerHTML = 
+    '<button class="x" onclick="$(\'#fileOv\').classList.remove(\'open\')">✕</button>' +
+    '<h3 class="disp">' + esc(a.name) + '</h3>' +
+    '<div class="kv"><div class="k">Slot</div><div class="v">' + a.date + ' at ' + t12(a.time) + ' — <span class="tag ' + a.status + '">' + a.status + '</span></div></div>' +
+    '<div class="row">' +
+      '<div class="kv"><div class="k">Mobile (+91)</div><div class="v"><a href="tel:+91' + esc(a.phone) + '">+91 ' + esc(a.phone) + '</a></div></div>' +
+      '<div class="kv"><div class="k">Email</div><div class="v">' + (a.email ? ('<a href="mailto:' + esc(a.email) + '">' + esc(a.email) + '</a>') : '—') + '</div></div>' +
+    '</div>' +
+    '<div class="kv"><div class="k">Symptoms / Diagnosis</div><div class="v">' + esc(a.cause || 'None') + '</div></div>' +
+    '<div class="kv"><div class="k">Prescriptions</div>' + medsHtml + '</div>' +
+    '<div class="kv"><div class="k">Clinical Notes</div><div class="v">' + esc(a.notes || 'None') + '</div></div>' +
+    '<div class="actions">' +
+      '<button class="btn sm" onclick="$(\'#fileOv\').classList.remove(\'open\');openForm(\'' + a.id + '\')">Edit File</button>' +
+      '<button class="btn sm ghost" onclick="markDone(\'' + a.id + '\')">Mark as Completed</button>' +
+    '</div>';
+  $('#fileOv').classList.add('open');
+};
+
+window.markDone = function(id){
+  var a = state.appts.find(function(x){ return x.id === id; });
+  if(a){
+    a.status = 'done';
+    save();
+    initApp();
+    $('#fileOv').classList.remove('open');
+  }
+};
+
+function toast(title, body){
+  var el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = '<div class="tt">' + esc(title) + '</div><div class="tb">' + esc(body) + '</div>';
+  $('#toasts').appendChild(el);
+  setTimeout(function(){ el.remove(); }, 4000);
+}
+
+function toastWithActions(title, body, actions){
+  var el = document.createElement('div');
+  el.className = 'toast';
+  var inner = '<div class="tt">' + esc(title) + '</div><div class="tb">' + esc(body) + '</div><div class="tbtns"></div>';
+  el.innerHTML = inner;
+  var btnBox = el.querySelector('.tbtns');
+
+  for(var i = 0; i < actions.length; i++){
+    (function(act){
+      var b = document.createElement('button');
+      b.className = 'btn sm';
+      b.textContent = act.label;
+      b.onclick = function(){
+        act.fn();
+        el.remove();
+      };
+      btnBox.appendChild(b);
+    })(actions[i]);
+  }
+
+  var dismiss = document.createElement('button');
+  dismiss.className = 'btn sm ghost';
+  dismiss.textContent = 'Dismiss';
+  dismiss.onclick = function(){ el.remove(); };
+  btnBox.appendChild(dismiss);
+
+  $('#toasts').appendChild(el);
+}
+
+var closeBtns = document.querySelectorAll('[data-close]');
+for(var i = 0; i < closeBtns.length; i++){
+  closeBtns[i].onclick = function(){
+    var overlays = document.querySelectorAll('.overlay');
+    for(var j = 0; j < overlays.length; j++){
+      overlays[j].classList.remove('open');
+    }
+  };
+}
+
+$('#btnSettings').onclick = function(){ $('#sName').value = state.name || ''; $('#setOv').classList.add('open'); };
+$('#sSave').onclick = function(){
+  state.name = $('#sName').value.trim();
+  state.lead = Math.max(1, parseInt($('#sLead').value) || 15);
+  var p = $('#sPin').value.trim();
+  if(p) state.pin = hash(p);
+  save();
+  renderHeader();
+  $('#setOv').classList.remove('open');
+};
+$('#sExport').onclick = function(){
+  var b = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'dentaldesk-backup-' + ymd(new Date()) + '.json';
+  a.click();
+};
+$('#btnLock').onclick = function(){ location.reload(); };
+
+$('#navAdd').onclick = function(){ openForm(); };
+$('#heroAdd').onclick = function(){ openForm(); };
+$('#addBtn').onclick = function(){ openForm(null, selected); };
+$('#heroCal').onclick = function(){ $('#calSec').scrollIntoView({behavior:'smooth'}); };
+$('#prevM').onclick = function(){ view.setMonth(view.getMonth() - 1); renderCal(); };
+$('#nextM').onclick = function(){ view.setMonth(view.getMonth() + 1); renderCal(); };
+$('#todayM').onclick = function(){ view = new Date(); view.setDate(1); selected = ymd(new Date()); renderCal(); renderList(); };
+$('#search').oninput = renderList;
+})();
+</script>
+</body>
+</html>
